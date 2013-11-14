@@ -1,0 +1,4 @@
+#! /usr/bin/env sh
+
+# for global gems
+gem list | tr -d '(,)' | grep '\b \d' | awk '{print $1, "--version", $2}' | xargs -n3 gem rdoc --ri --no-rdoc
