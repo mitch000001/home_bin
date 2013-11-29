@@ -1,0 +1,16 @@
+#! /bin/bash
+
+function _complete_()
+{
+  local current previous cmd line xpat
+  COMPREPLY=()
+  current="${COMP_WORDS[COMP_CWORD]}"
+  previous="${COMP_WORDS[COMP_CWORD-1]}"
+  cmd="${1##*/}"
+  line=${COMP_LINE}
+  xpat=""
+
+  COMPREPLY=($(compgen -W "$xpat" -- "${current}"))
+}
+
+complete -F _complete_ mycommand
