@@ -14,14 +14,12 @@ _vmrun()
   #
   case "${previous}" in
     start)
-      local names=$(for x in `ls -1 $HOME/Documents/Virtual\ Machines.localized/*/*.vmx`; do echo ${x/$HOME\/Documents\/Virtual\\ Machines.localized\//} ; done );
-      echo "NAMES:" + ${names[@]};
-      #local names=`ls -1 $HOME/Documents/Virtual\ Machines.localized/*/*.vmx`;
+      local names=$(for x in `ls -1 $HOME/Documents/Virtual_Machines.localized/*/*.vmx`; do echo ${x/$HOME\/Documents\/Virtual_Machines.localized\//} ; done );
       COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
       return 0
       ;;
     stop)
-      local names=`ls -1 ~/Documents/Virtual\ Machines.localized/*/*.vmx`;
+      local names=$(for x in `ls -1 $HOME/Documents/Virtual_Machines.localized/*/*.vmx`; do echo ${x/$HOME\/Documents\/Virtual_Machines.localized\//} ; done );
       COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
       return 0
       ;;
@@ -31,7 +29,5 @@ _vmrun()
       ;;
   esac
 
-  COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
-  return 0
 }
 complete -F _vmrun vmrun
