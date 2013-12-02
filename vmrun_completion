@@ -19,9 +19,9 @@ _vmrun()
       return 0
       ;;
     stop)
-      local names=`ls -1 $HOME/Documents/Virtual_Machines.localized/*/*.vmx`;
-      COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
-      return 0
+      local running_machines=`vmrun list | grep '.vmx'`;
+      COMPREPLY=( $(compgen -W "${running_machines}" -- ${current}) );
+      return 0;
       ;;
     vmrun)
       COMPREPLY=( $(compgen -W "${options}" -- ${current}) )
