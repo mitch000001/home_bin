@@ -12,13 +12,19 @@ _vmrun()
   starting_power_command_options="gui nogui"
   list_snapshot_command_options="showTree"
   delete_snapshot_command_options="andDeleteChildren"
+
   #
   #  Complete the arguments to some of the basic commands.
   #
   case "${prev1}" in
     start)
-      local names=`ls -1 $HOME/Documents/Virtual_Machines.localized/*/*.vmx`;
-      COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
+      if [ -n "$VM_PATH" ]
+      then
+        local names=`ls -1 $VM_PATH/*/*.vmx`;
+        COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
+      else
+        __complete_vmx_files
+      fi
       return 0
       ;;
     reset)
@@ -47,23 +53,43 @@ _vmrun()
       return 0;
       ;;
     snapshot)
-      local names=`ls -1 $HOME/Documents/Virtual_Machines.localized/*/*.vmx`;
-      COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
+      if [ -n "$VM_PATH" ]
+      then
+        local names=`ls -1 $VM_PATH/*/*.vmx`;
+        COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
+      else
+        __complete_vmx_files
+      fi
       return 0
       ;;
     deleteSnapshot)
-      local names=`ls -1 $HOME/Documents/Virtual_Machines.localized/*/*.vmx`;
-      COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
+      if [ -n "$VM_PATH" ]
+      then
+        local names=`ls -1 $VM_PATH/*/*.vmx`;
+        COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
+      else
+        __complete_vmx_files
+      fi
       return 0
       ;;
     revertToSnapshot)
-      local names=`ls -1 $HOME/Documents/Virtual_Machines.localized/*/*.vmx`;
-      COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
+      if [ -n "$VM_PATH" ]
+      then
+        local names=`ls -1 $VM_PATH/*/*.vmx`;
+        COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
+      else
+        __complete_vmx_files
+      fi
       return 0
       ;;
     listSnapshots)
-      local names=`ls -1 $HOME/Documents/Virtual_Machines.localized/*/*.vmx`;
-      COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
+      if [ -n "$VM_PATH" ]
+      then
+        local names=`ls -1 $VM_PATH/*/*.vmx`;
+        COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
+      else
+        __complete_vmx_files
+      fi
       return 0
       ;;
     vmrun)
@@ -123,6 +149,18 @@ _vmrun()
 
 } &&
 complete -F _vmrun vmrun
+
+__complete_vmx_files() {
+
+  local IFS=$'\n'
+  local vmx_xspec="!*.@(vmx)"
+  _expand || return 0
+
+  _compopt_o_filenames
+  COMPREPLY=( $( compgen -f -X "$vmx_xspec" -- "$current" ) \
+    $( compgen -d -- "$current" ) )
+  return 0
+}
 
 # VMRUN OUTPUT
 # vmrun version 1.13.0 build-1331545
