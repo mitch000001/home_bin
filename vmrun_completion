@@ -1,5 +1,5 @@
 #! /bin/bash
-
+have vmrun &&
 _vmrun()
 {
   local current prev1 prev2 prev3 options stopping_power_command_options starting_power_command_options
@@ -121,7 +121,7 @@ _vmrun()
       ;;
   esac
 
-}
+} &&
 complete -F _vmrun vmrun
 
 # VMRUN OUTPUT
