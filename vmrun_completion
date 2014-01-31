@@ -2,12 +2,14 @@
 have vmrun &&
   _vmrun()
 {
-  local current prev1 options stopping_power_command_options starting_power_command_options
+  local current current_vmrun_command commands stopping_power_command_options starting_power_command_options
   COMPREPLY=()
   current="${COMP_WORDS[COMP_CWORD]}"
-  prev1="${COMP_WORDS[COMP_CWORD-1]}"
-  #  The basic options we'll complete.
+  current_vmrun_command="${COMP_WORDS[1]}"
+
+  #  The basic commands we'll complete.
   commands="start stop list snapshot listSnapshots deleteSnapshot revertToSnapshot reset suspend pause unpause deleteVM clone"
+  #  The additional options and settings for the completed commands
   stopping_power_command_options="hard soft"
   starting_power_command_options="gui nogui"
   list_snapshot_command_options="showTree"
@@ -18,84 +20,106 @@ have vmrun &&
   #
   #  Complete the arguments to some of the basic commands.
   #
-  case "${prev1}" in
-    vmrun)
+  case ${COMP_CWORD} in
+    1)
       COMPREPLY=( $(compgen -W "${commands}" -- ${current}) )
       return 0
       ;;
-    start|snapshot|deleteSnapshot|revertToSnapshot|listSnapshots|deleteVM|clone)
-      __complete_vmx_files
+    2)
+      case "${current_vmrun_command}" in
+        start|snapshot|deleteSnapshot|revertToSnapshot|listSnapshots|deleteVM|clone)
+          __complete_vmx_files
+          return 0
+          ;;
+        stop|reset|suspend|pause)
+          local running_machines=`vmrun list | grep '.vmx'`;
+          COMPREPLY=( $(compgen -W "${running_machines}" -- ${current}) );
+          return 0
+          ;;
+        unpause)
+          # TODO: is this the right implementation for paused machines?
+          local running_machines=`vmrun list | grep '.vmx'`;
+          COMPREPLY=( $(compgen -W "${running_machines}" -- ${current}) );
+          return 0
+          ;;
+        *)
+          return 0
+          ;;
+      esac
       return 0
       ;;
-    stop|reset|suspend|pause)
-      local running_machines=`vmrun list | grep '.vmx'`;
-      COMPREPLY=( $(compgen -W "${running_machines}" -- ${current}) );
-      return 0;
+    3)
+      case "${current_vmrun_command}" in
+        stop|reset|suspend)
+          COMPREPLY=( $(compgen -W "${stopping_power_command_options}" -- ${current}) )
+          return 0
+          ;;
+        start)
+          COMPREPLY=( $(compgen -W "${starting_power_command_options}" -- ${current}) )
+          return 0
+          ;;
+        deleteSnapshot|revertToSnapshot)
+          local snapshots_for_machine=`vmrun listSnapshots ${COMP_WORDS[COMP_CWORD-1]} | grep '^Total snapshots: \d*$' --invert-match`;
+          COMPREPLY=( $(compgen -W "${snapshots_for_machine}" -- ${current}) )
+          return 0
+          ;;
+        listSnapshots)
+          COMPREPLY=( $(compgen -W "${list_snapshot_command_options}" -- ${current}) )
+          return 0
+          ;;
+        clone)
+          __complete_vmx_files
+          return 0
+          ;;
+        *)
+          return 0
+          ;;
+      esac
+      return 0
       ;;
-    unpause)
-      # TODO: is this the right implementation for paused machines?
-      local running_machines=`vmrun list | grep '.vmx'`;
-      COMPREPLY=( $(compgen -W "${running_machines}" -- ${current}) );
-      return 0;
+    4)
+      case "${current_vmrun_command}" in
+        deleteSnapshot)
+          COMPREPLY=( $(compgen -W "${delete_snapshot_command_options}" -- ${current}) )
+          return 0
+          ;;
+        clone)
+          COMPREPLY=( $(compgen -W "${clone_options}" -- ${current}) )
+          return 0
+          ;;
+        *)
+        return 0
+        ;;
+      esac
+      return 0
+      ;;
+    5)
+      case "${current_vmrun_command}" in
+        clone)
+          local snapshots_for_machine=`vmrun listSnapshots ${COMP_WORDS[COMP_CWORD-3]} | grep '^Total snapshots: \d*$' --invert-match`;
+          COMPREPLY=( $(compgen -W "${snapshots_for_machine}" -- ${current}) )
+          return 0
+          ;;
+        *)
+          return 0
+          ;;
+      esac
+      return 0
+      ;;
+    6)
+      case "${current_vmrun_command}" in
+        clone)
+          # TODO: remove already used clone settings
+          COMPREPLY=( $(compgen -W "${clone_settings}" -- ${current}) )
+          return 0
+          ;;
+        *)
+          return 0
+          ;;
+      esac
+      return 0
       ;;
     *)
-      if [ "${COMP_CWORD}" -ge 3 ]; then
-        local prev2="${COMP_WORDS[COMP_CWORD-2]}"
-        case "${prev2}" in
-          stop|reset|suspend)
-            COMPREPLY=( $(compgen -W "${stopping_power_command_options}" -- ${current}) )
-            return 0
-            ;;
-          start)
-            COMPREPLY=( $(compgen -W "${starting_power_command_options}" -- ${current}) )
-            return 0
-            ;;
-          deleteSnapshot|revertToSnapshot)
-            local snapshots_for_machine=`vmrun listSnapshots ${prev1}`;
-            COMPREPLY=( $(compgen -W "${snapshots_for_machine}" -- ${current}) )
-            return 0
-            ;;
-          listSnapshots)
-            COMPREPLY=( $(compgen -W "${list_snapshot_command_options}" -- ${current}) )
-            return 0
-            ;;
-          clone)
-            __complete_vmx_files
-            return 0
-            ;;
-          *)
-            if [ "${COMP_CWORD}" -ge 4 ]; then
-              local prev3="${COMP_WORDS[COMP_CWORD-3]}"
-              case "${prev3}" in
-                deleteSnapshot)
-                  COMPREPLY=( $(compgen -W "${delete_snapshot_command_options}" -- ${current}) )
-                  return 0
-                  ;;
-                clone)
-                  COMPREPLY=( $(compgen -W "${clone_options}" -- ${current}) )
-                  return 0
-                  ;;
-                *)
-                  if [ "${COMP_CWORD}" -ge 5 ]; then
-                    local prev4="${COMP_WORDS[COMP_CWORD-4]}"
-                    case "${prev4}" in
-                      clone)
-                        COMPREPLY=( $(compgen -W "${clone_settings}" -- ${current}) )
-                        return 0
-                        ;;
-                      *)
-                        return 0
-                        ;;
-                    esac
-                  fi
-                  return 0
-                  ;;
-              esac
-            fi
-            return 0
-            ;;
-        esac
-      fi
       return 0
       ;;
   esac
