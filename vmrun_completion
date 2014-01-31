@@ -107,7 +107,7 @@ __complete_vmx_files() {
 
   if [ -n "$VM_PATH" ]
   then
-    local names=`ls -1 $VM_PATH/*/*.vmx`;
+    local names=`find -E $VM_PATH -type f -regex '.*\.vmx$'`;
     COMPREPLY=( $(compgen -W "${names}" -- ${current}) )
     return 0
   else
