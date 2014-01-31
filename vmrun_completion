@@ -7,7 +7,7 @@ have vmrun &&
   current="${COMP_WORDS[COMP_CWORD]}"
   prev1="${COMP_WORDS[COMP_CWORD-1]}"
   #  The basic options we'll complete.
-  options="start stop list snapshot listSnapshots deleteSnapshot revertToSnapshot reset suspend pause unpause deleteVM clone"
+  commands="start stop list snapshot listSnapshots deleteSnapshot revertToSnapshot reset suspend pause unpause deleteVM clone"
   stopping_power_command_options="hard soft"
   starting_power_command_options="gui nogui"
   list_snapshot_command_options="showTree"
@@ -20,7 +20,7 @@ have vmrun &&
   #
   case "${prev1}" in
     vmrun)
-      COMPREPLY=( $(compgen -W "${options}" -- ${current}) )
+      COMPREPLY=( $(compgen -W "${commands}" -- ${current}) )
       return 0
       ;;
     start|snapshot|deleteSnapshot|revertToSnapshot|listSnapshots|deleteVM|clone)
