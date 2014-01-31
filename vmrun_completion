@@ -8,7 +8,7 @@ have vmrun &&
   current_vmrun_command="${COMP_WORDS[1]}"
 
   #  The basic commands we'll complete.
-  commands="start stop list snapshot listSnapshots deleteSnapshot revertToSnapshot reset suspend pause unpause deleteVM clone"
+  commands="start stop list snapshot listSnapshots deleteSnapshot revertToSnapshot reset suspend pause unpause deleteVM clone installTools checkToolsState upgradevm"
   #  The additional options and settings for the completed commands
   stopping_power_command_options="hard soft"
   starting_power_command_options="gui nogui"
@@ -27,7 +27,7 @@ have vmrun &&
       ;;
     2)
       case "${current_vmrun_command}" in
-        start|snapshot|deleteSnapshot|revertToSnapshot|listSnapshots|deleteVM|clone)
+        start|snapshot|deleteSnapshot|revertToSnapshot|listSnapshots|deleteVM|clone|installTools|checkToolsState|upgradevm)
           __complete_vmx_files
           return 0
           ;;
