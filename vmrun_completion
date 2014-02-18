@@ -63,6 +63,11 @@ have vmrun &&
           COMPREPLY=( $(compgen -W "${snapshots_for_machine}" -- ${current}) )
           return 0
           ;;
+        snapshot)
+          local current_datetime=`date '+%Y-%m-%dT%H-%M-%S'`
+          COMPREPLY=( $(compgen -W "${current_datetime}" -- ${current}) )
+          return 0
+          ;;
         listSnapshots)
           COMPREPLY=( $(compgen -W "${list_snapshot_command_options}" -- ${current}) )
           return 0
